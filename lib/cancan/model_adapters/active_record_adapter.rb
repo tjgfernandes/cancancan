@@ -122,7 +122,6 @@ module CanCan
             end.inject do |result, element|
               result.union(element)
             end
-            element = accessible_scope.all.first
             accessible_scope
           else
             @model_class.where(*(@rules.map(&:conditions))).includes(joins)
