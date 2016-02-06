@@ -1,3 +1,10 @@
+appraise "activerecord_3.2.17" do
+  gem "activerecord", "3.2.17", :require => "active_record", :git=>"git://github.com/tjgfernandes/rails.git", :branch=>"3-2-stable"
+  gem 'arel', :git=>"git://github.com/tjgfernandes/arel.git", :branch=>"3-0-stable"
+
+  gem "sqlite3"
+end
+
 appraise "activerecord_3.2" do
   gem "activerecord", "~> 3.2.0", :require => "active_record"
 

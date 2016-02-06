@@ -11,6 +11,7 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
         create_table(:categories) do |t|
           t.string :name
           t.boolean :visible
+          t.integer :user_id
           t.timestamps :null => false
         end
 
@@ -51,6 +52,7 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
 
       class Category < ActiveRecord::Base
         has_many :articles
+        belongs_to :user
       end
 
       class Article < ActiveRecord::Base
@@ -73,6 +75,7 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
 
       class User < ActiveRecord::Base
         has_many :articles
+        has_many :categories
       end
 
       (@ability = double).extend(CanCan::Ability)
@@ -329,6 +332,20 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
       ability.can :manage, :all
       ability.can :manage, Article, :user_id => user.id
       expect(Article.accessible_by(ability)).to eq([article])
+    end
+
+    it "fetches all articles accessible by 2 abilities" do
+      user = User.create!
+      article = Article.create!(:user => user)
+      article2 = Article.create!(:category=>Category.create!(:user_id=>user.id))
+      ability = Ability.new(user)
+
+      ability.can :read, Article, {:user => {:id=>user.id}}
+      ability.can :read, Article, {:category => { :user => {:id => user.id}}}
+
+      articles = Article.accessible_by(ability).all
+      expect(articles.size).to eq(2)
+      expect(articles).to eq([article,article2])
     end
 
     it 'should not execute a scope when checking ability on the class' do
